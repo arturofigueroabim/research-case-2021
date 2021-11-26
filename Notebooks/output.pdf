@@ -1,0 +1,75 @@
+strict digraph essay001 {
+	graph [margin=0 nodesep=0.25 rankdir=BT ranksep=0.5]
+	node [fontname=Arial fontsize=11 height=0 margin="0.15,0.1" shape=box style=filled width=0]
+	edge [color="#666666"]
+	"3104e57b-4eba-11ec-8465-902e16e0bb12" [label=". we should attach more importance
+to cooperation during primary
+education. a more cooperative
+attitudes towards life is more
+profitable in one's success" color="#3498db" fillcolor="#3498db" fontcolor="#000000" root=True]
+	"3104e57c-4eba-11ec-b0ee-902e16e0bb12" [label="through cooperation, children can
+learn about interpersonal skills
+which are significant in the future
+life of all students" color="#3498db" fillcolor="#ddeef9" fontcolor="#000000" root=False]
+	"3104e57d-4eba-11ec-9c8a-902e16e0bb12" [label=Support color="#2ecc71" fillcolor="#def8e9" fontcolor="#000000"]
+	"3104e580-4eba-11ec-b415-902e16e0bb12" [label="What we acquired from team work is
+not only how to achieve the same
+goal with others but more
+importantly, how to get along with
+others" color="#3498db" fillcolor="#ddeef9" fontcolor="#000000" root=False]
+	"3104e581-4eba-11ec-af44-902e16e0bb12" [label="During the process of cooperation,
+children can learn about how to
+listen to opinions of others, how to
+communicate with others, how to
+think comprehensively, and even how
+to compromise with other team
+members when conflicts occurred" color="#3498db" fillcolor="#ddeef9" fontcolor="#000000" root=False]
+	"3104e582-4eba-11ec-b7fc-902e16e0bb12" [label="All of these skills help them to get
+on well with other people and will
+benefit them for the whole life" color="#3498db" fillcolor="#ddeef9" fontcolor="#000000" root=False]
+	"3104e583-4eba-11ec-a89e-902e16e0bb12" [label=Support color="#2ecc71" fillcolor="#def8e9" fontcolor="#000000"]
+	"3104e586-4eba-11ec-9a19-902e16e0bb12" [label=Support color="#2ecc71" fillcolor="#def8e9" fontcolor="#000000"]
+	"31050c92-4eba-11ec-97b0-902e16e0bb12" [label=Support color="#2ecc71" fillcolor="#def8e9" fontcolor="#000000"]
+	"31050c95-4eba-11ec-851a-902e16e0bb12" [label="competition makes the society more
+effective" color="#3498db" fillcolor="#ddeef9" fontcolor="#000000" root=False]
+	"31050c96-4eba-11ec-ac7c-902e16e0bb12" [label=Attack color="#e74c3c" fillcolor="#fbdedb" fontcolor="#000000"]
+	"31050c99-4eba-11ec-bbd0-902e16e0bb12" [label="the significance of competition is
+that how to become more excellence
+to gain the victory" color="#3498db" fillcolor="#ddeef9" fontcolor="#000000" root=False]
+	"31050c9a-4eba-11ec-94d1-902e16e0bb12" [label="when we consider about the question
+that how to win the game, we always
+find that we need the cooperation" color="#3498db" fillcolor="#ddeef9" fontcolor="#000000" root=False]
+	"31050c9b-4eba-11ec-83a1-902e16e0bb12" [label="Take Olympic games which is a form
+of competition for instance, it is
+hard to imagine how an athlete could
+win the game without the training of
+his or her coach, and the help of
+other professional staffs such as
+the people who take care of his
+diet, and those who are in charge of
+the medical care" color="#3498db" fillcolor="#ddeef9" fontcolor="#000000" root=False]
+	"31050c9c-4eba-11ec-9c88-902e16e0bb12" [label="without the cooperation, there would
+be no victory of competition" color="#3498db" fillcolor="#ddeef9" fontcolor="#000000" root=False]
+	"31050c9d-4eba-11ec-9388-902e16e0bb12" [label=Support color="#2ecc71" fillcolor="#def8e9" fontcolor="#000000"]
+	"31050ca0-4eba-11ec-a2c0-902e16e0bb12" [label=Support color="#2ecc71" fillcolor="#def8e9" fontcolor="#000000"]
+	"31050ca3-4eba-11ec-82a1-902e16e0bb12" [label=Support color="#2ecc71" fillcolor="#def8e9" fontcolor="#000000"]
+	"31050ca6-4eba-11ec-b1f5-902e16e0bb12" [label=Support color="#2ecc71" fillcolor="#def8e9" fontcolor="#000000"]
+	"3104e57c-4eba-11ec-b0ee-902e16e0bb12" -> "3104e57d-4eba-11ec-9c8a-902e16e0bb12"
+	"3104e57d-4eba-11ec-9c8a-902e16e0bb12" -> "3104e57b-4eba-11ec-8465-902e16e0bb12"
+	"3104e580-4eba-11ec-b415-902e16e0bb12" -> "3104e583-4eba-11ec-a89e-902e16e0bb12"
+	"3104e583-4eba-11ec-a89e-902e16e0bb12" -> "3104e57c-4eba-11ec-b0ee-902e16e0bb12"
+	"3104e581-4eba-11ec-af44-902e16e0bb12" -> "3104e586-4eba-11ec-9a19-902e16e0bb12"
+	"3104e586-4eba-11ec-9a19-902e16e0bb12" -> "3104e57c-4eba-11ec-b0ee-902e16e0bb12"
+	"3104e582-4eba-11ec-b7fc-902e16e0bb12" -> "31050c92-4eba-11ec-97b0-902e16e0bb12"
+	"31050c92-4eba-11ec-97b0-902e16e0bb12" -> "3104e57c-4eba-11ec-b0ee-902e16e0bb12"
+	"31050c95-4eba-11ec-851a-902e16e0bb12" -> "31050c96-4eba-11ec-ac7c-902e16e0bb12"
+	"31050c96-4eba-11ec-ac7c-902e16e0bb12" -> "3104e57b-4eba-11ec-8465-902e16e0bb12"
+	"31050c9c-4eba-11ec-9c88-902e16e0bb12" -> "31050c9d-4eba-11ec-9388-902e16e0bb12"
+	"31050c9d-4eba-11ec-9388-902e16e0bb12" -> "3104e57b-4eba-11ec-8465-902e16e0bb12"
+	"31050c9b-4eba-11ec-83a1-902e16e0bb12" -> "31050ca0-4eba-11ec-a2c0-902e16e0bb12"
+	"31050ca0-4eba-11ec-a2c0-902e16e0bb12" -> "31050c9c-4eba-11ec-9c88-902e16e0bb12"
+	"31050c9a-4eba-11ec-94d1-902e16e0bb12" -> "31050ca3-4eba-11ec-82a1-902e16e0bb12"
+	"31050ca3-4eba-11ec-82a1-902e16e0bb12" -> "31050c9c-4eba-11ec-9c88-902e16e0bb12"
+	"31050c99-4eba-11ec-bbd0-902e16e0bb12" -> "31050ca6-4eba-11ec-b1f5-902e16e0bb12"
+	"31050ca6-4eba-11ec-b1f5-902e16e0bb12" -> "31050c95-4eba-11ec-851a-902e16e0bb12"
+}
