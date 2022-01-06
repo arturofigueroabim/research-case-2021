@@ -1,4 +1,4 @@
-adu_label,ADU,essay_id,label,start_ind,end_ind,claim_type,sentence
+ADU_index,ADU,essay_id,label,start_ind,end_ind,claim_type,ADU_text
 T1,MajorClaim 503 575	we should attach more importance to cooperation during primary education,essay001,train,503,575,MajorClaim,we should attach more importance to cooperation during primary education
 T2,MajorClaim 2154 2231	a more cooperative attitudes towards life is more profitable in one's success,essay001,train,2154,2231,MajorClaim,a more cooperative attitudes towards life is more profitable in one's success
 T3,"Claim 591 714	through cooperation, children can learn about interpersonal skills which are significant in the future life of all students",essay001,train,591,714,Claim,"through cooperation, children can learn about interpersonal skills which are significant in the future life of all students"
