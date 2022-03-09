@@ -171,14 +171,14 @@ def train_test_classifer(classification, classifier, X_train, y_train, X_test, y
         
         return list_models
 
-def simple_models(model_selected, X_train, y_train, multiclass = False):
+def simple_models(model_selected, X_train, y_train):
     
     model = model_selected
     model.fit(X_train, y_train)
     
     return model
     
-def logistic_regression(X_train, y_train, multiclass = False):
+def logistic_regression(X_train, y_train):
 
     ####################################################
     # parameter grid
@@ -198,7 +198,7 @@ def logistic_regression(X_train, y_train, multiclass = False):
     return logreg_grid
 
             
-def random_forest(X_train, y_train, multiclass = False):
+def random_forest(X_train, y_train):
            
     ####################################################
     # parameter grid
@@ -235,7 +235,7 @@ def random_forest(X_train, y_train, multiclass = False):
     
     return rf_random
             
-def naive_bayes(X_train, y_train, multiclass = False):
+def naive_bayes(X_train, y_train):
     
     #NB doesn't have any hyperparameters to tune.
     gnb = GaussianNB()
@@ -246,7 +246,7 @@ def naive_bayes(X_train, y_train, multiclass = False):
     
     return gnb_models
             
-def xgboost(X_train, y_train, multiclass = False):
+def xgboost(X_train, y_train):
                
     ####################################################
     # parameter grid
@@ -269,7 +269,7 @@ def xgboost(X_train, y_train, multiclass = False):
     return xgb_grid
 
 
-def svm(X_train, y_train, multiclass = False):
+def svm(X_train, y_train):
             
     ####################################################
     # parameter grid
