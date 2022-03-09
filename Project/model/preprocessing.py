@@ -20,14 +20,15 @@ span_features = ['num_tokens', 'num_verbs', 'num_pos_pronouns', 'num_conj_adv', 
 span_utilities = ['prev_unit', 'idx_start', 'idx_end', ]
 # methods
 
-span_methods = ['get_nth_unit', 'get_prev_unit_attr', 'get_label', 'get_possible_labels']
+span_methods = ['get_nth_unit', 'get_prev_unit_attr', 'get_label', 'get_possible_labels', 'get_label_and_error']
 token_features =['word_emb']
 
 extensions_dict = dict(doc_features=doc_features, span_features=span_features+span_utilities,
                     token_features=token_features, span_methods=span_methods)
 
+adus = pd.read_csv("../data/output_csv/adus.csv")
 
-def create_extensions(extensions_dict=None, adus=None , force=True):
+def create_extensions(extensions_dict=None, force=True):
         
     # Features that take 'unit' as input refer to the segmentation, they do not work with just any span.
     
@@ -576,10 +577,11 @@ def calculate_segmentation_accuracy(units, error_function='percentage_correctnes
 
 
 
-def text2fv(df, adus, segmentation_mode='sentence', label_mode='adu', threshold=0, n_grams=None ,print_segmentation_error = False):
+
+def text2fv(df, segmentation_mode='sentence', label_mode='adu', threshold=0, n_grams=None ,print_segmentation_error = False):
     
     # Run
-    create_extensions(extensions_dict, adus) 
+    create_extensions(extensions_dict) 
     
     # Rename to create_training_data?
     data = [(row['text'], dict(id=row['essay_id'])) for ind, row in df.iterrows()]

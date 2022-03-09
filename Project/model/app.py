@@ -28,6 +28,6 @@ def essays_process():
     
     print(len(train))
     print(len(test))
-    pipeline(train,test, adus)
+    pipeline(train,test)
     
 essays_process()

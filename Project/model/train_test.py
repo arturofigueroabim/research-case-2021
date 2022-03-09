@@ -37,7 +37,7 @@ segmentations = ['sentence']
 classifications = ['binary']
 #classifications = ['binary', 'multiclass', 'two_binary']
 
-def pipeline(train, test, adus):
+def pipeline(train, test):
 
     f.write(f'\n We are using {len(train)} essays \n')
 
@@ -51,16 +51,16 @@ def pipeline(train, test, adus):
     for segmentation in segmentations:
         print(segmentation)
         
-        f.write(f'\n Segmentantion Type: {segmentation} \n')
+        f.write(f'\n Segmentation Type: {segmentation} \n')
         
-        segmentation_mode(segmentation,train, test, adus)
+        segmentation_mode(segmentation,train, test)
         
     f.close()
 
-def segmentation_mode(segmentation,train, test, adus):
+def segmentation_mode(segmentation,train, test):
             
-    X_train, y_train_adu, y_train_clpr = text2fv(train,adus, segmentation_mode= segmentation)
-    X_test, y_test_adu, y_test_clpr = text2fv(test,adus, segmentation_mode= segmentation)
+    X_train, y_train_adu, y_train_clpr = text2fv(train, segmentation_mode= segmentation)
+    X_test, y_test_adu, y_test_clpr = text2fv(test, segmentation_mode= segmentation)
 
     for classification in classifications:
         print(classification)
@@ -147,9 +147,9 @@ def train_test_classifer(classification, classifier, X_train, y_train, X_test, y
         list_models = []
         
         if classifier in models:
-            simple_model = simple_models(models[classifier],X_train, y_train, multiclass)
+            simple_model = simple_models(models[classifier],X_train, y_train)
         
-        grid_model = globals()[classifier](X_train, y_train, multiclass)
+        grid_model = globals()[classifier](X_train, y_train)
         
         list_models.append(simple_model)
         list_models.append(grid_model)
