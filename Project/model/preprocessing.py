@@ -3,24 +3,24 @@ import pandas as pd
 import spacy
 from spacy.tokens import Doc, Span, Token
 import re
-#import benepar
+import benepar
 from itertools import chain
 from spacy.pipeline import Sentencizer
 
 nlp = spacy.load('en_core_web_md')
 para_splitter = Sentencizer(punct_chars=['\n'])
-#nlp.add_pipe("benepar", config={"model": "benepar_en3"})
+nlp.add_pipe("benepar", config={"model": "benepar_en3"})
+nlp_trf = spacy.load('en_core_web_trf')
 
 doc_features = ['num_tokens', 'para_starts']
-
-span_features = ['num_tokens', 'num_verbs', 'num_pos_pronouns', 'num_conj_adv', 'num_punct', 'is_para_start',
-                'index_in_doc', 'num_claim_indicator']
+span_features = ['word_emb', 'sent_emb', 'num_tokens', 'num_verbs', 'num_pos_pronouns', 'num_conj_adv', 'num_punct', 'is_para_start',
+                 'index_in_doc', 'num_claim_indicator', 'num_premise_indicator', 'has_question_mark', 'has_personal_pronoun',
+                 'has_possessive_pronoun', 'has_modal_verb', 'is_first_token_gerund', 'tree_depth', 'contextual_features_prev' ,'contextual_features_next']
 
 # getters that are not used as features
 span_utilities = ['prev_unit', 'idx_start', 'idx_end', ]
 # methods
-
-span_methods = ['get_nth_unit', 'get_prev_unit_attr', 'get_label', 'get_possible_labels', 'get_label_and_error']
+span_methods = ['get_nth_unit', 'get_prev_unit_attr', 'get_label_and_error', 'get_label', 'get_possible_labels']
 token_features =['word_emb']
 
 extensions_dict = dict(doc_features=doc_features, span_features=span_features+span_utilities,
@@ -121,7 +121,7 @@ def create_extensions(extensions_dict=None, force=True):
         essay_id = unit.doc._.essay_id
 
         # DataFrame containing ADUs indices & labels, filtered for current essay_id
-        #TODO adus variable in Jupyter does not exists
+
         adus_doc = adus[adus['essay_id'] == essay_id]
 
         def segmentation_error(unit, adu_start, adu_end, overlap_case, error_function):
@@ -142,8 +142,8 @@ def create_extensions(extensions_dict=None, force=True):
             
             return (left_tokens, err_func(unit, adu_start, adu_end, overlap_case), right_tokens)
 
-#TODO I do not know how to fix it             
-# v7 returns: (ADU_Type, (left_error_tokens, err_func, right_error_tokens))
+             
+# returns: (ADU_Type, (left_error_tokens, err_func, right_error_tokens))
         label_and_error = [(row['ADU_type'], segmentation_error(unit, row['start_ind'],row['end_ind'], 
                           overlap_case(unit_start, unit_end,row['start_ind'], row['end_ind']), error_function),
                           #(row['start_ind'], row['end_ind'])
@@ -152,24 +152,6 @@ def create_extensions(extensions_dict=None, force=True):
                          if unit_start < row['end_ind'] and unit_end >= row['start_ind'] ]
 
             
-# v6 returns: (ADU_Type, err_func)
-#
-#         label_and_error = [(row['ADU_type'], err_func(unit, row['start_ind'],row['end_ind'], 
-#                           overlap_case(unit_start, unit_end,row['start_ind'], row['end_ind'])),
-#                           #(row['start_ind'], row['end_ind'])
-#                            ) 
-#                          for row_ind, row in adus_doc.iterrows() 
-#                          if unit_start <= row['end_ind'] and unit_end >= row['start_ind']]
-
-    #     # Contains information of the ADUs that overlap with the UNIT
-    #     # Structure: (adu_start, adu_end, overlap_case, ADU_type)
-    #     overlap_adus = [(row['start_ind'],
-    #                      row['end_ind'], 
-    #                      overlap_case(unit_start, unit_end,row['start_ind'], row['end_ind']), 
-    #                      row['ADU_type']) 
-    #                      for row_ind, row in adus_doc.iterrows()
-    #           if unit_start <= row['end_ind'] and unit_end >= row['start_ind']]
-
         return label_and_error
 
     
@@ -211,26 +193,6 @@ def create_extensions(extensions_dict=None, force=True):
 
             return assigned_label_and_error
 
-    def _NOT_USED_get_label_adu(span):
-        
-        # Gets ADU vs non-ADU LABEL for the span (intended only for sentences)
-
-        # Works if the span is larger or equal to the adu
-
-        # TODO:
-        # DOES NOT WORK IF SPAN IS SMALLER THAN ADU, OR IF ADU IS SPLIT BETWEEN TWO SPANS (NEEDS MORE WORK!!!)
-        # CLAIM VS PREMISE
-        essay_id = span.doc._.essay_id
-
-        span_start = span[0].idx
-        #  + len(span[-1]) to get to the end of the last word
-        span_end = span[-1].idx  + len(span[-1])
-        start_inds = adus[adus['essay_id'] == essay_id ]['start_ind'].values
-        end_inds = adus[adus['essay_id'] == essay_id ]['end_ind'].values
-
-        # Checks if starting index of span is smaller than ADU and the ending index of the span is larger than the ADU
-        return ((start_inds >= span_start) & (end_inds <= span_end)).any()
-
     
     def get_idx_start(unit):
         return unit[0].idx
@@ -243,10 +205,6 @@ def create_extensions(extensions_dict=None, force=True):
         # Units starting with \n or preceding \n are considered as paragraph starts
         # if start is 0, start -1 goes back to the last token of the doc
 
-        # TODO
-        # para_ends can be obtained by shifing this list to the right by one position
-        
-        # PROBLEM! WORKS ONLY FOR SENTENCE SEGMENTATION
         
         return [int(doc[start].text =='\n' or doc[start-1].text=='\n') for start, end in doc._.units_index_list]
     
@@ -272,11 +230,10 @@ def create_extensions(extensions_dict=None, force=True):
     def get_word_emb(obj):
         return obj.vector
     
-    #TODO install trf
-    #def get_sent_emb(unit):
+    def get_sent_emb(unit):
         
-   #     trf_doc = nlp_trf(unit.text)
-   #     return trf_doc._.trf_data.tensors[1][0]
+       trf_doc = nlp_trf(unit.text)
+       return trf_doc._.trf_data.tensors[1][0]
         
     
     def get_num_tokens(obj):
@@ -457,8 +414,7 @@ def segmentation(doc=None ,mode = 'sentence', n_grams=15):
     elif mode=='gold_standard':
         
         # Segments ADUs according to annotations
-        #TODO FIX THIS
-        adu_inds =[]# adus[adus['essay_id']==doc._.essay_id].sort_values('start_ind')[['start_ind','end_ind']]
+        adu_inds = adus[adus['essay_id']==doc._.essay_id].sort_values('start_ind')[['start_ind','end_ind']]
 
         units = []
 
@@ -492,37 +448,6 @@ def unit2fv(unit, feature_list):
     _fv = np.array([np.reshape(feature, -1) for feature in fv], dtype='object')
     
     return np.concatenate(_fv)
-
-
-def OLD_calculate_segmentation_accuracy(units, error_function='percentage_correctness'):
-    
-    
-    
-    start_errors = np.array([])
-    segmentation_accs = np.array([])
-    end_errors = np.array([])
-
-    for unit in units:
-        error_tuple = unit._.get_possible_labels(error_function=error_function)
-
-        if len(error_tuple) != 0:
-            label_position = np.argmax([error[1] for label, error in error_tuple])
-
-            start_errors = np.append(start_errors,error_tuple[label_position][1][0])
-
-            segmentation_accs = np.append(segmentation_accs, error_tuple[label_position][1][1])
-
-            end_errors = np.append(end_errors, error_tuple[label_position][1][2])
-
-
-
-    start_error = sum((start_errors**2))/len(start_errors)
-
-    end_error = sum((end_errors**2))/len(end_errors)
-
-    segmentation_acc = segmentation_accs.mean()
-    
-    return (start_error, segmentation_acc, end_error)
 
 
 
@@ -565,25 +490,24 @@ def calculate_segmentation_accuracy(units, error_function='percentage_correctnes
 
 #     segmentation_acc = segmentation_accs.mean()
     
-    result1 = dict(start_early = early_start_errors, start_late = late_start_errors, segmentation_accs = segmentation_accs,
-                 end_early = early_end_errors, end_late = late_end_errors)
+    error_vector_dict = dict(start_early_vector = early_start_errors, start_late_vector = late_start_errors, segmentation_accs_vector = segmentation_accs,
+                 end_early_vector = early_end_errors, end_late_vector = late_end_errors)
     
-    result2 = dict(start_early = early_start_errors.mean(), start_late = late_start_errors.mean(),
+    error_mean_dict = dict(start_early = early_start_errors.mean(), start_late = late_start_errors.mean(),
                    segmentation_accs = segmentation_accs.mean(),end_early = early_end_errors.mean(),
                    end_late = late_end_errors.mean())
     
-    return result2
+    return error_vector_dict, error_mean_dict
 
 
 
 
 
-def text2fv(df, segmentation_mode='sentence', label_mode='adu', threshold=0, n_grams=None ,print_segmentation_error = False):
+def create_training_data(df, segmentation_mode='sentence', threshold=0, n_grams=None ,print_segmentation_error = False):
     
     # Run
     create_extensions(extensions_dict) 
     
-    # Rename to create_training_data?
     data = [(row['text'], dict(id=row['essay_id'])) for ind, row in df.iterrows()]
     docs = []
     
@@ -603,6 +527,8 @@ def text2fv(df, segmentation_mode='sentence', label_mode='adu', threshold=0, n_g
     
     # Flatten lists (Dissolve docs boundaries and store all units together in one huge list)
     units = list(chain.from_iterable(segmented_docs))
+
+    error_vector_dict, error_mean_dict = calculate_segmentation_accuracy(units)
     
     if print_segmentation_error:
         print(f"Segmentation Mode: {segmentation_mode}\nAccuracy:{calculate_segmentation_accuracy(units)}")
@@ -611,8 +537,7 @@ def text2fv(df, segmentation_mode='sentence', label_mode='adu', threshold=0, n_g
     
 
     X = np.array([unit2fv(unit, X_features) for unit in units])
-    #y = np.array([unit._.get_label(label_mode=label_mode, threshold=threshold) for unit in units])
     y_adu = np.array([unit._.get_label(label_mode='adu', threshold=threshold) for unit in units])
     y_clpr = np.array([unit._.get_label(label_mode='clpr', threshold=threshold) for unit in units])
     
-    return X, y_adu, y_clpr
+    return X, y_adu, y_clpr, error_vector_dict, error_mean_dict

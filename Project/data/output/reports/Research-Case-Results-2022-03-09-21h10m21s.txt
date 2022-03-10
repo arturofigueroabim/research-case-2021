@@ -1,0 +1,46 @@
+Research Case Result Report 
+
+ We are using 4 essays 
+
+ Classifiers are using ['logistic_regression'] 
+
+ Segmentations are using ['paragraph', 'constituency1'] 
+
+ Classifications are using ['multiclass'] 
+
+ Start Pipeline 
+
+ Segmentation Type: paragraph 
+Segmentation Errors Vectors paragraph
+Train_Error_Vectors
+start_early: [194. 107.  89. 132.]
+start_late: []
+segmentation_accs: [0.07098765 0.06744868 0.11956522 0.0758427 ]
+end_early: []
+end_late: [107. 211. 235. 197.]
+Test_Error_Vectors
+start_early: [135.]
+start_late: []
+segmentation_accs: [0.08533333]
+end_early: []
+end_late: [208.]
+
+Segmentation Error (Means) paragraph
+
+Train
+start_early: 130.5
+start_late: nan
+segmentation_accs: 0.08346106217335292
+end_early: nan
+end_late: 187.5
+
+Test
+start_early: 135.0
+start_late: nan
+segmentation_accs: 0.08533333333333333
+end_early: nan
+end_late: 208.0
+
+ Classification Type: multiclass 
+
+ Model logistic_regression: 

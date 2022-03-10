@@ -20,7 +20,7 @@ def essays_process():
     essays, adus = read_files("../data/output_csv/essays.csv" , "../data/output_csv/adus.csv")
     
     #TODO remove the lines below, for now is just for testing  
-    n = 50
+    n = 5
     split_pct = 0.8
     essays = essays.sample(n)
     train = essays.sample(frac=split_pct)

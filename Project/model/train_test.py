@@ -11,7 +11,7 @@ import numpy as np
 import warnings
 import pickle
 import datetime
-from preprocessing import text2fv
+from preprocessing import create_training_data
 warnings.filterwarnings('ignore')
 
 st = datetime.datetime.now().strftime('%Y-%m-%d-%Hh%Mm%Ss')
@@ -28,13 +28,13 @@ models = {'logistic_regression': LogisticRegression(solver='newton-cg'),
         'xgboost': XGBClassifier(), 
         'svm': SVC()  }
 
-#segmentations = ['sentence', 'paragraph', 'n_grams', 'clause', 'constituency1', 'token', 'gold_standard']3
+#segmentations = ['sentence', 'paragraph', 'n_grams', 'clause', 'constituency1', 'gold_standard']3
 #segmentations = ['sentence', 'constituency1', 'gold_standard']
-segmentations = ['sentence']
+segmentations = ['gold_standard']
 
 
                 
-classifications = ['binary']
+classifications = ['multiclass']
 #classifications = ['binary', 'multiclass', 'two_binary']
 
 def pipeline(train, test):
@@ -48,19 +48,36 @@ def pipeline(train, test):
 
     f.write(f'\n Start Pipeline \n')
     
-    for segmentation in segmentations:
-        print(segmentation)
+    for segmentation_mode in segmentations:
+        print(segmentation_mode)
         
-        f.write(f'\n Segmentation Type: {segmentation} \n')
+        f.write(f'\nSegmentation Type: {segmentation_mode} \n')
         
-        segmentation_mode(segmentation,train, test)
+        text_segmentation(segmentation_mode,train, test)
         
     f.close()
 
-def segmentation_mode(segmentation,train, test):
+def text_segmentation(segmentation_mode,train, test):
             
-    X_train, y_train_adu, y_train_clpr = text2fv(train, segmentation_mode= segmentation)
-    X_test, y_test_adu, y_test_clpr = text2fv(test, segmentation_mode= segmentation)
+    X_train, y_train_adu, y_train_clpr, error_vector_dict_train, error_mean_dict_train = create_training_data(train, segmentation_mode= segmentation_mode)
+    X_test, y_test_adu, y_test_clpr, error_vector_dict_test, error_mean_dict_test = create_training_data(test, segmentation_mode= segmentation_mode)
+    
+    f.write(f"Segmentation Errors Vectors {segmentation_mode}\n")  
+
+    f.write("\nTrain_Error_Vectors\n")
+    for k,v in error_vector_dict_train.items():
+        f.write(f"{k}: {v}\n")
+    f.write("\nTest_Error_Vectors\n")
+    for k,v in error_vector_dict_test.items():
+        f.write(f"{k}: {v}\n")
+
+    f.write(f"\nSegmentation Error Means {segmentation_mode}\n")  
+    f.write("\nTrain\n")
+    for k,v in error_mean_dict_train.items():
+        f.write(f"{k}: {v}\n")
+    f.write("\nTest\n")
+    for k,v in error_mean_dict_test.items():
+        f.write(f"{k}: {v}\n")
 
     for classification in classifications:
         print(classification)
