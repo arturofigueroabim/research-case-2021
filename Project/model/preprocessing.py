@@ -144,8 +144,8 @@ def create_extensions(extensions_dict=None, force=True):
         return label_and_error
 
     
-    def get_label(unit, label_mode='clpr', threshold=0):
-        error_tuple = unit._.get_possible_labels()
+    def get_label(unit, label_mode='clpr', threshold=0, error_function='percentage_correctness'):
+        error_tuple = unit._.get_possible_labels(error_function=error_function)
 
         if len(error_tuple) == 0:
             return "Non-ADU"
@@ -491,8 +491,9 @@ def calculate_segmentation_accuracy(units, error_function='percentage_correctnes
 
 
 
-
-def create_training_data(df, segmentation_mode='sentence', threshold=0, n_grams=None ,print_segmentation_error = False):
+#TODO rename to create_units_from_docs
+#TODO remove arguments threshold, error_function <---moved to another function the NEW "create_training_data"
+def create_training_data(df, segmentation_mode='sentence', threshold=0, n_grams=None ,error_function='percentage_correctness'):
     
     # Run
     create_extensions(extensions_dict) 
@@ -519,14 +520,24 @@ def create_training_data(df, segmentation_mode='sentence', threshold=0, n_grams=
 
     error_vector_dict, error_mean_dict = calculate_segmentation_accuracy(units)
     
-    if print_segmentation_error:
-        print(f"Segmentation Mode: {segmentation_mode}\nAccuracy:{calculate_segmentation_accuracy(units)}")
+    #TODO return units, and error_vector_dict + error_mean_dict, then print them and we're done with them
+
+
+
+    #TODO create another function NEW create_training_data, can play around with it
+    #TODO can adjust error_function, threshold, label_mode, etc.
+    #TODO current idea: set threshold = 0.5 only for n_grams
 
     X_features = span_features
     
 
     X = np.array([unit2fv(unit, X_features) for unit in units])
-    y_adu = np.array([unit._.get_label(label_mode='adu', threshold=threshold) for unit in units])
-    y_clpr = np.array([unit._.get_label(label_mode='clpr', threshold=threshold) for unit in units])
+    
+    y_adu_pct_corr = np.array([unit._.get_label(label_mode='adu', threshold=threshold, error_function='percentage_correctness') for unit in units])
+    y_clpr_pct_corr = np.array([unit._.get_label(label_mode='clpr', threshold=threshold,  error_function='percentage_correctness') for unit in units])
+
+    y_adu_ext_acc = np.array([unit._.get_label(label_mode='adu', threshold=threshold, error_function='extended_accuracy') for unit in units])
+    y_clpr_ext_acc = np.array([unit._.get_label(label_mode='clpr', threshold=threshold,  error_function='extended_accuracy') for unit in units])
+    
     
     return X, y_adu, y_clpr, error_vector_dict, error_mean_dict
