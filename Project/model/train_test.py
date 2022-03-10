@@ -1,4 +1,3 @@
-##Sklearn Models
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
@@ -6,36 +5,28 @@ from sklearn.model_selection import RandomizedSearchCV
 from sklearn.naive_bayes import GaussianNB
 from xgboost import XGBClassifier
 from sklearn.svm import SVC
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import classification_report
 import numpy as np
 import warnings
 import pickle
 import datetime
 from preprocessing import create_training_data
+import config
 warnings.filterwarnings('ignore')
 
 st = datetime.datetime.now().strftime('%Y-%m-%d-%Hh%Mm%Ss')
 
 f = open(f'../data/output/reports/Research-Case-Results-{st}.txt', 'w')
 f.write('Research Case Result Report \n')
-#Settings
 
-#classifiers = ['logistic_regression', 'random_forest', 'naive_bayes', 'xgboost', 'svm' ]
-classifiers = ['logistic_regression']
+classifiers = config.classifiers
+segmentations = config.segmentations
+classifications = config.classifications
 
 models = {'logistic_regression': LogisticRegression(solver='newton-cg'),
         'random_forest': RandomForestClassifier(),  
         'xgboost': XGBClassifier(), 
         'svm': SVC()  }
-
-#segmentations = ['sentence', 'paragraph', 'n_grams', 'clause', 'constituency1', 'gold_standard']3
-#segmentations = ['sentence', 'constituency1', 'gold_standard']
-segmentations = ['gold_standard']
-
-
-                
-classifications = ['multiclass']
-#classifications = ['binary', 'multiclass', 'two_binary']
 
 def pipeline(train, test):
 

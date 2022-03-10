@@ -1,11 +1,6 @@
-import numpy as np
 import pandas as pd
-import spacy
-from spacy.tokens import Doc, Span, Token
-nlp = spacy.load("en_core_web_md")
-import re
 from train_test import pipeline
-from itertools import chain
+
 
 #TODO create config file
 
@@ -17,7 +12,7 @@ def read_files(essays_path, adus_path):
 
 
 def essays_process():
-    essays, adus = read_files("../data/output_csv/essays.csv" , "../data/output_csv/adus.csv")
+    essays, adus = read_files("../data/input/essays.csv" , "../data/input/adus.csv")
     
     #TODO remove the lines below, for now is just for testing  
     n = 5
@@ -26,8 +21,8 @@ def essays_process():
     train = essays.sample(frac=split_pct)
     test = essays.drop(train.index)
     
-    print(len(train))
-    print(len(test))
     pipeline(train,test)
-    
+
+print("Start Running.....")
 essays_process()
+print("Project Run Successfully")
