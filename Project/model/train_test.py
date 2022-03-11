@@ -10,7 +10,7 @@ import numpy as np
 import warnings
 import pickle
 import datetime
-from preprocessing import create_training_data
+from preprocessing import create_units_from_docs
 import config
 warnings.filterwarnings('ignore')
 
@@ -22,6 +22,7 @@ f.write('Research Case Result Report \n')
 classifiers = config.classifiers
 segmentations = config.segmentations
 classifications = config.classifications
+error_functions = config.error_function
 
 models = {'logistic_regression': LogisticRegression(solver='newton-cg'),
         'random_forest': RandomForestClassifier(),  
@@ -49,10 +50,10 @@ def pipeline(train, test):
     f.close()
 
 def text_segmentation(segmentation_mode,train, test):
-            
-    X_train, y_train_adu, y_train_clpr, error_vector_dict_train, error_mean_dict_train = create_training_data(train, segmentation_mode= segmentation_mode)
-    X_test, y_test_adu, y_test_clpr, error_vector_dict_test, error_mean_dict_test = create_training_data(test, segmentation_mode= segmentation_mode)
-    
+   
+    units_train, error_vector_dict_train, error_mean_dict_train = create_units_from_docs(train, segmentation_mode= segmentation_mode)
+    units_test, error_vector_dict_test, error_mean_dict_test = create_units_from_docs(train, segmentation_mode= segmentation_mode)  
+              
     f.write(f"Segmentation Errors Vectors {segmentation_mode}\n")  
 
     f.write("\nTrain_Error_Vectors\n")
@@ -75,109 +76,158 @@ def text_segmentation(segmentation_mode,train, test):
         
         f.write(f'\n Classification Type: {classification} \n')
 
-        classification_type(classification, 
-                            X_train, y_train_adu,y_train_clpr, 
-                            X_test, y_test_adu, y_test_clpr)
+        classification_type(classification, units_train, units_test, segmentation_mode)
 
 
-def classification_type(classification, X_train, y_train_adu, y_train_clpr, X_test, y_test_adu, y_test_clpr):
-    
-    if classification == 'binary':
+def classification_type(classification, units_train, units_test, segmentation_mode):
+          
+    for classifier in classifiers:
         
-        for classifier in classifiers:
-            train_test_classifer(classification, classifier, X_train, y_train_adu, X_test, y_test_adu)
-    
-    if classification  == 'multiclass':
-
-        for classifier in classifiers:
-            train_test_classifer(classification, classifier, X_train, y_train_clpr, X_test, y_test_clpr)
-
-
-    if classification == 'two_binary':
-
-        for classifier in classifiers:
-            two_binary_classification(classification, classifier,  X_train, y_train_adu, y_train_clpr, X_test, y_test_adu, y_test_clpr)
+        for error_function in error_functions: 
             
+            train_test_classifer(classification, classifier, units_train, units_test, error_function, segmentation_mode)
 
-def two_binary_classification(classification, first_classifier, X_train, y_train_adu, y_train_clpr, X_test, y_test_adu, y_test_clpr):
+            
+def unit2fv(unit, feature_list):
     
-    second_classifiers = ['logistic_regression']
+    fv = np.array([unit._.get(feature) for feature in feature_list], dtype='object')
     
-    print(f'First Classier: {first_classifier}')
-    f.write(f'\n First Classier: {first_classifier} \n')
+    _fv = np.array([np.reshape(feature, -1) for feature in fv], dtype='object')
     
-    cl1 = train_test_classifer(classification, first_classifier, 
-                               X_train, y_train_adu, 
-                               X_test, y_test_adu, True)
-    for cli_1 in cl1:
-        preds_cl1 = cli_1.predict(X_test)
+    return np.concatenate(_fv)
+
+def create_training_test_data(units, label_mode, error_function , segmentation_mode = None):
+
+    threshold=0
+    if segmentation_mode == 'n_grams': 
+        threshold=0.5
+   
+    X_features = config.span_features
+    
+    X = np.array([unit2fv(unit, X_features) for unit in units])
+    y = np.array([unit._.get_label(label_mode=label_mode, threshold= threshold, error_function = error_function) for unit in units])
+    
+    return X, y
+
+
+def two_binary_classification(classification, classifier, units_train, units_test, error_function , segmentation_mode):
+        
+    second_classifiers = config.second_classifiers
+    
+    print(f'First Classier: {classifier}')
+    f.write(f'\n First Classier: {classifier} Error Function: {error_function} Segmentation Mode: {segmentation_mode} : \n')
+
+    cl1_list_models = []
+    
+    X_train, y_train = create_training_test_data(units_train, 'adu', error_function= error_function, segmentation_mode = segmentation_mode )
+    X_test, y_test = create_training_test_data(units_test, 'adu', error_function= error_function, segmentation_mode = segmentation_mode)
+    
+    X_train_clpr, y_train_clpr = create_training_test_data(units_train, 'clpr', error_function= error_function,  segmentation_mode = segmentation_mode)
+    X_test_clpr, y_test_clpr = create_training_test_data(units_train, 'clpr', error_function= error_function,  segmentation_mode = segmentation_mode)
+
+    if classifier in models:
+        simple_model = simple_models(models[classifier],X_train, y_train)
+        cl1_list_models.append(simple_model)
+
+    grid_model = globals()[classifier](X_train, y_train) 
+    cl1_list_models.append(grid_model)
+    
+    for i, cl1_modeli in enumerate(cl1_list_models): 
+        
+        ###Write the Report in the file 
+        preds_cl1 = cl1_modeli.predict(X_test)
+        
         preds_cl1_adu_index = np.where(preds_cl1=='ADU')
 
         X_test_cl1_pred_adu = X_test[preds_cl1_adu_index]
-        y_test_cl1_pred_adu = y_test_adu[preds_cl1_adu_index]
-
-
+        y_test_cl1_pred_adu = y_train[preds_cl1_adu_index]
+        
         for second_classifier in second_classifiers:
             print(f'Second Classier: {second_classifier}')
-            
-            f.write(f'\n Second Classier: {second_classifier} \n')
         
+            f.write(f'\n Second Classier: {classifier} Error Function: {error_function} Segmentation Mode: {segmentation_mode} : \n')
+
             clpr_index_train = np.where(y_train_clpr!='Non-ADU')[0]
-            clpr_index_test = np.where(y_test_clpr!='Non-ADU')[0]
-
-            X_train_clpr_only = X_train[clpr_index_train].copy()
-            X_test_clpr_only = X_test[clpr_index_test].copy()
-
-
+            clpr_index_test = np.where(y_test_clpr!='Non-ADU')[0]                
+            
+            X_train_clpr_only = X_train_clpr[clpr_index_train].copy()
+            X_test_clpr_only = X_test_clpr[clpr_index_test].copy()
+            
             y_train_clpr_only = y_train_clpr[clpr_index_train].copy()
 
             y_test_clpr_only = y_test_clpr[clpr_index_test].copy()
+            cl2_list_models = []
+            if second_classifier in models:
+                simple_model = simple_models(models[second_classifier],X_train_clpr_only, y_train_clpr_only)
+                cl2_list_models.append(simple_model)
 
-            cl2 = train_test_classifer(classification, second_classifier, X_train_clpr_only,  y_train_clpr_only, X_test, y_test_clpr, True)
-
-            for cli_2 in cl2:
+            grid_model = globals()[second_classifier](X_train_clpr_only, y_train_clpr_only) 
+            cl2_list_models.append(grid_model)
+            
+            for j, cli_2 in enumerate(cl2_list_models):
 
                 preds_cl2 = cli_2.predict(X_test_cl1_pred_adu)
 
                 preds_all = preds_cl1.copy()
                 preds_all[preds_cl1_adu_index] = preds_cl2
                 preds_all 
-
-                print(classification_report(preds_all, y_test_clpr))
-
-                f.write(f'\n Classification Report: {classification_report(preds_all, y_test_clpr)} \n')
-
                 
-def train_test_classifer(classification, classifier, X_train, y_train, X_test, y_test, multiclass = False):
+                if j == 1:
+                    write_results(classification_report(preds_all, y_test_clpr), True, cli_2)
+                else:
+                    write_results(classification_report(preds_all, y_test_clpr))
+                
+                ###Saving the models as pickle 
+                time = datetime.datetime.now().strftime('%H%M%S')
+                with open(f'../data/output/models/{classification}_First_{classifier}_{i}_Second_{second_classifier}_ErrorFunction_{error_function}_SegmentationMode_{segmentation_mode}_{j}_{time}.bin', 'wb') as f_out:
+                    pickle.dump(cli_2, f_out) # write final_model in .bin file
+                    f_out.close()
+                            
+    return cl2_list_models    
+                
+def train_test_classifer(classification, classifier, units_train, units_test, error_function,  segmentation_mode):
     
-        print(classifier)
-        f.write(f'\n Model {classifier}: \n')
-        list_models = []
-        
-        if classifier in models:
-            simple_model = simple_models(models[classifier],X_train, y_train)
-        
-        grid_model = globals()[classifier](X_train, y_train)
-        
+    label_mode = ''
+    
+    if classification == 'binary':  
+        label_mode = 'adu'    
+    
+    if classification  == 'multiclass':
+        label_mode = 'clpr'
+    
+    if classification  == 'two_binary':
+        return two_binary_classification(classification, classifier, units_train, units_test, error_function,  segmentation_mode)
+
+    X_train, y_train = create_training_test_data(units_train, label_mode, error_function= error_function,  segmentation_mode = segmentation_mode )
+    X_test, y_test = create_training_test_data(units_test, label_mode, error_function= error_function, segmentation_mode = segmentation_mode)
+    
+    print(classifier)
+    f.write(f'\n Model: {classifier} Error Function: {error_function} Segmentation Mode: {segmentation_mode} : \n')
+    list_models = []
+    
+    if classifier in models:
+        simple_model = simple_models(models[classifier],X_train, y_train)
         list_models.append(simple_model)
-        list_models.append(grid_model)
+
+    grid_model = globals()[classifier](X_train, y_train) 
+    list_models.append(grid_model)
+    
+    for i, modeli in enumerate(list_models): 
         
-        for i, modeli in enumerate(list_models): 
-            
-            ###Write the Report in the file 
-            preds_model = modeli.predict(X_test)
-            if multiclass:
-                write_results(classification_report(y_test, preds_model), True, modeli)
-            else:
-                write_results(classification_report(y_test, preds_model))
-            
-            ###Saving the models as pickle 
-            time = datetime.datetime.now().strftime('%H%M%S')
-            with open(f'../data/output/models/{classification}_{classifier}_{i}_{time}.bin', 'wb') as f_out:
-                pickle.dump(modeli, f_out) # write final_model in .bin file
-                f_out.close()
+        ###Write the Report in the file 
+        preds_model = modeli.predict(X_test)
+        if i == 1:
+            write_results(classification_report(y_test, preds_model), True, modeli)
+        else:
+            write_results(classification_report(y_test, preds_model))
         
-        return list_models
+        ###Saving the models as pickle 
+        time = datetime.datetime.now().strftime('%H%M%S')
+        with open(f'../data/output/models/{classification}_{classifier}_ErrorFunction_{error_function}_SegmentationMode_{segmentation_mode}_{i}_{time}.bin', 'wb') as f_out:
+            pickle.dump(modeli, f_out) # write final_model in .bin file
+            f_out.close()
+    
+    return list_models
 
 def simple_models(model_selected, X_train, y_train):
     
@@ -246,13 +296,10 @@ def random_forest(X_train, y_train):
 def naive_bayes(X_train, y_train):
     
     #NB doesn't have any hyperparameters to tune.
-    gnb = GaussianNB()
-    gnb.fit(X_train, y_train)
-    
-    gnb_models = []
-    gnb_models.append(gnb)
-    
-    return gnb_models
+    gnb_model = GaussianNB()
+    gnb_model.fit(X_train, y_train)
+        
+    return gnb_model
             
 def xgboost(X_train, y_train):
                
@@ -267,7 +314,6 @@ def xgboost(X_train, y_train):
     "subsample": [0.8],
     "colsample_bytree": [0.5],
     }
-
     # Init classifier
     xgb_cl = XGBClassifier()
     # Init Grid Search

@@ -1,0 +1,153 @@
+Research Case Result Report 
+
+ We are using 5 essays 
+
+ Classifiers are using ['logistic_regression'] 
+
+ Segmentations are using ['sentence'] 
+
+ Classifications are using ['two_binary'] 
+
+ Start Pipeline 
+
+ Segmentantion Type: sentence 
+
+ Classification Type: two_binary 
+
+ First Classier: logistic_regression 
+
+ Model logistic_regression: 
+
+ Classification Report: 
+               precision    recall  f1-score   support
+
+         ADU       0.83      0.94      0.88        16
+     Non-ADU       0.50      0.25      0.33         4
+
+    accuracy                           0.80        20
+   macro avg       0.67      0.59      0.61        20
+weighted avg       0.77      0.80      0.77        20
+ 
+
+ Tuned Hyperparameters: {'C': 1.0, 'penalty': 'l1', 'solver': 'liblinear'} 
+
+ Accuracy: 0.8791666666666667 
+
+ Classification Report: 
+               precision    recall  f1-score   support
+
+         ADU       0.83      0.94      0.88        16
+     Non-ADU       0.50      0.25      0.33         4
+
+    accuracy                           0.80        20
+   macro avg       0.67      0.59      0.61        20
+weighted avg       0.77      0.80      0.77        20
+ 
+
+ Second Classier: logistic_regression 
+
+ Model logistic_regression: 
+
+ Classification Report: 
+               precision    recall  f1-score   support
+
+       Claim       1.00      0.33      0.50         6
+     Non-ADU       0.00      0.00      0.00         4
+     Premise       0.56      1.00      0.71        10
+
+    accuracy                           0.60        20
+   macro avg       0.52      0.44      0.40        20
+weighted avg       0.58      0.60      0.51        20
+ 
+
+ Tuned Hyperparameters: {'C': 10.0, 'penalty': 'l1', 'solver': 'liblinear'} 
+
+ Accuracy: 0.6738095238095239 
+
+ Classification Report: 
+               precision    recall  f1-score   support
+
+       Claim       0.50      0.33      0.40         6
+     Non-ADU       0.00      0.00      0.00         4
+     Premise       0.50      0.80      0.62        10
+
+    accuracy                           0.50        20
+   macro avg       0.33      0.38      0.34        20
+weighted avg       0.40      0.50      0.43        20
+ 
+
+ Classification Report:               precision    recall  f1-score   support
+
+       Claim       0.33      1.00      0.50         2
+     Non-ADU       0.25      0.50      0.33         2
+     Premise       1.00      0.62      0.77        16
+
+    accuracy                           0.65        20
+   macro avg       0.53      0.71      0.53        20
+weighted avg       0.86      0.65      0.70        20
+ 
+
+ Classification Report:               precision    recall  f1-score   support
+
+       Claim       0.33      0.50      0.40         4
+     Non-ADU       0.25      0.50      0.33         2
+     Premise       0.80      0.57      0.67        14
+
+    accuracy                           0.55        20
+   macro avg       0.46      0.52      0.47        20
+weighted avg       0.65      0.55      0.58        20
+ 
+
+ Second Classier: logistic_regression 
+
+ Model logistic_regression: 
+
+ Classification Report: 
+               precision    recall  f1-score   support
+
+       Claim       1.00      0.33      0.50         6
+     Non-ADU       0.00      0.00      0.00         4
+     Premise       0.56      1.00      0.71        10
+
+    accuracy                           0.60        20
+   macro avg       0.52      0.44      0.40        20
+weighted avg       0.58      0.60      0.51        20
+ 
+
+ Tuned Hyperparameters: {'C': 10.0, 'penalty': 'l1', 'solver': 'liblinear'} 
+
+ Accuracy: 0.6738095238095239 
+
+ Classification Report: 
+               precision    recall  f1-score   support
+
+       Claim       0.50      0.33      0.40         6
+     Non-ADU       0.00      0.00      0.00         4
+     Premise       0.50      0.80      0.62        10
+
+    accuracy                           0.50        20
+   macro avg       0.33      0.38      0.34        20
+weighted avg       0.40      0.50      0.43        20
+ 
+
+ Classification Report:               precision    recall  f1-score   support
+
+       Claim       0.33      1.00      0.50         2
+     Non-ADU       0.25      0.50      0.33         2
+     Premise       1.00      0.62      0.77        16
+
+    accuracy                           0.65        20
+   macro avg       0.53      0.71      0.53        20
+weighted avg       0.86      0.65      0.70        20
+ 
+
+ Classification Report:               precision    recall  f1-score   support
+
+       Claim       0.33      0.50      0.40         4
+     Non-ADU       0.25      0.50      0.33         2
+     Premise       0.80      0.57      0.67        14
+
+    accuracy                           0.55        20
+   macro avg       0.46      0.52      0.47        20
+weighted avg       0.65      0.55      0.58        20
+ 

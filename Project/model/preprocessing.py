@@ -7,12 +7,31 @@ import benepar
 from itertools import chain
 from spacy.pipeline import Sentencizer
 import config
+import subprocess
+import sys
 
-nlp = spacy.load('en_core_web_md')
+try:
+    nlp = spacy.load("en_core_web_lg")
+except:
+    subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_lg" ])
+    nlp = spacy.load("en_core_web_lg")
+    
+try:
+    nlp_trf = spacy.load('en_core_web_trf', disable=['tagger', 'parser', 'attribute_ruler', 'lemmatizer', 'ner'])
+except:
+    subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_trf" ])
+    nlp_trf = spacy.load('en_core_web_trf', disable=['tagger', 'parser', 'attribute_ruler', 'lemmatizer', 'ner'])
+
+try:
+    nlp.add_pipe("benepar", config={"model": "benepar_en3"})
+
+except:
+    
+    benepar.download('benepar_en3')
+    nlp.add_pipe("benepar", config={"model": "benepar_en3"})
+    
+
 para_splitter = Sentencizer(punct_chars=['\n'])
-nlp.add_pipe("benepar", config={"model": "benepar_en3"})
-nlp_trf = spacy.load('en_core_web_trf')
-
 extensions_dict = config.extensions_dict
 span_features = config.span_features
 adus = pd.read_csv("../data/input/adus.csv")
@@ -20,11 +39,10 @@ adus = pd.read_csv("../data/input/adus.csv")
 def create_extensions(extensions_dict=None, force=True):
         
     # Features that take 'unit' as input refer to the segmentation, they do not work with just any span.
-    
     # Property attributes
-    
     # Store starting and ending indices of spans in the whole doc
     # 1 list per each document: [(s1_start, s1_end), (s2_start, s2_end),.., (sn_start, sn_end)]
+    
     Doc.set_extension("units_index_list", default=[],force=True)
     
     # Store essay_id within doc
@@ -152,6 +170,7 @@ def create_extensions(extensions_dict=None, force=True):
         else:
             # Get position of label with maximum accuracy
             label_position = np.argmax([error[1] for label, error in error_tuple])
+            label = ''
             if error_tuple[label_position][1][1] > threshold:
                 if label_mode=='clpr':
                     label = error_tuple[label_position][0]
@@ -218,7 +237,7 @@ def create_extensions(extensions_dict=None, force=True):
     
     def get_word_emb(obj):
         return obj.vector
-    
+
     def get_sent_emb(unit):
         
        trf_doc = nlp_trf(unit.text)
@@ -430,15 +449,6 @@ def segmentation(doc=None ,mode = 'sentence', n_grams=15):
         
         return units
 
-def unit2fv(unit, feature_list):
-    
-    fv = np.array([unit._.get(feature) for feature in feature_list], dtype='object')
-    
-    _fv = np.array([np.reshape(feature, -1) for feature in fv], dtype='object')
-    
-    return np.concatenate(_fv)
-
-
 
 def calculate_segmentation_accuracy(units, error_function='percentage_correctness'):
     
@@ -490,10 +500,7 @@ def calculate_segmentation_accuracy(units, error_function='percentage_correctnes
 
 
 
-
-#TODO rename to create_units_from_docs
-#TODO remove arguments threshold, error_function <---moved to another function the NEW "create_training_data"
-def create_training_data(df, segmentation_mode='sentence', threshold=0, n_grams=None ,error_function='percentage_correctness'):
+def create_units_from_docs(df, segmentation_mode='sentence', n_grams=None):
     
     # Run
     create_extensions(extensions_dict) 
@@ -520,24 +527,8 @@ def create_training_data(df, segmentation_mode='sentence', threshold=0, n_grams=
 
     error_vector_dict, error_mean_dict = calculate_segmentation_accuracy(units)
     
-    #TODO return units, and error_vector_dict + error_mean_dict, then print them and we're done with them
+    return units, error_vector_dict, error_mean_dict
 
 
 
-    #TODO create another function NEW create_training_data, can play around with it
-    #TODO can adjust error_function, threshold, label_mode, etc.
-    #TODO current idea: set threshold = 0.5 only for n_grams
 
-    X_features = span_features
-    
-
-    X = np.array([unit2fv(unit, X_features) for unit in units])
-    
-    y_adu_pct_corr = np.array([unit._.get_label(label_mode='adu', threshold=threshold, error_function='percentage_correctness') for unit in units])
-    y_clpr_pct_corr = np.array([unit._.get_label(label_mode='clpr', threshold=threshold,  error_function='percentage_correctness') for unit in units])
-
-    y_adu_ext_acc = np.array([unit._.get_label(label_mode='adu', threshold=threshold, error_function='extended_accuracy') for unit in units])
-    y_clpr_ext_acc = np.array([unit._.get_label(label_mode='clpr', threshold=threshold,  error_function='extended_accuracy') for unit in units])
-    
-    
-    return X, y_adu, y_clpr, error_vector_dict, error_mean_dict
