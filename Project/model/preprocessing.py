@@ -489,14 +489,14 @@ def calculate_segmentation_accuracy(units, error_function='percentage_correctnes
 
 #     segmentation_acc = segmentation_accs.mean()
     
-    error_vector_dict = dict(start_early_vector = early_start_errors, start_late_vector = late_start_errors, segmentation_accs_vector = segmentation_accs,
-                 end_early_vector = early_end_errors, end_late_vector = late_end_errors)
+    # error_vector_dict = dict(start_early_vector = early_start_errors, start_late_vector = late_start_errors, segmentation_accs_vector = segmentation_accs,
+    #              end_early_vector = early_end_errors, end_late_vector = late_end_errors)
     
     error_mean_dict = dict(start_early = early_start_errors.mean(), start_late = late_start_errors.mean(),
                    segmentation_accs = segmentation_accs.mean(),end_early = early_end_errors.mean(),
                    end_late = late_end_errors.mean())
     
-    return error_vector_dict, error_mean_dict
+    return error_mean_dict
 
 
 
@@ -525,9 +525,8 @@ def create_units_from_docs(df, segmentation_mode='sentence', n_grams=None):
     # Flatten lists (Dissolve docs boundaries and store all units together in one huge list)
     units = list(chain.from_iterable(segmented_docs))
 
-    error_vector_dict, error_mean_dict = calculate_segmentation_accuracy(units)
     
-    return units, error_vector_dict, error_mean_dict
+    return units
 
 
 
